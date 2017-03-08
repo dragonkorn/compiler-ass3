@@ -9,6 +9,7 @@
   void push (int data);
   int pop (void);
   int temp;
+  int temp2;
   int acc;
   int r[26];
   int top;
@@ -65,9 +66,10 @@ line: '\n'    { printf ("acc = %d",acc);  }
   | exp '\n'  { printf ("= %.10g", $1); }
   | SHOW show '\n' 
   | LOAD load '\n'
-  | PUSH reg '\n'  { temp = $2; push(temp); }
-  | POP  '\n'
-  ;
+  | PUSH reg '\n'   { temp = $2; push(r[temp-263]); }
+  | PUSH nonEditReg '\n'   { temp = $2; push(temp); } 
+  | POP reg '\n'    { temp = $2; r[temp-263] = pop(); }
+ ;
 
 exp:  NUM     { $$ = $1;
                 acc = $$;
@@ -101,68 +103,45 @@ exp:  NUM     { $$ = $1;
               }
   ;
 
-show: reg     { temp = $1;
-                printf("= %d",temp); }
+show: reg     { temp = $1;  printf("= %d",r[temp-263]); }
+  | nonEditReg { temp = $1;  printf("= %d",temp); }
 ;
 
-load: ACC reg   { acc = $2; }
-  | RA reg      { r[$1-263] = $2; }  
-  | RB reg     { r[1] = $2; } 
-  | RC reg     { r[2] = $2; } 
-  | RD reg     { r[3] = $2; } 
-  | RE reg     { r[4] = $2; } 
-  | RF reg     { r[5] = $2; } 
-  | RG reg     { r[6] = $2; } 
-  | RH reg     { r[7] = $2; } 
-  | RI reg     { r[8] = $2; } 
-  | RJ reg     { r[9] = $2; } 
-  | RK reg     { r[10] = $2; } 
-  | RL reg     { r[11] = $2; } 
-  | RM reg     { r[12] = $2; } 
-  | RN reg     { r[13] = $2; } 
-  | RO reg     { r[14] = $2; } 
-  | RP reg     { r[15] = $2; } 
-  | RQ reg     { r[16] = $2; } 
-  | RR reg     { r[17] = $2; } 
-  | RS reg     { r[18] = $2; } 
-  | RT reg     { r[19] = $2; } 
-  | RU reg     { r[20] = $2; } 
-  | RV reg     { r[21] = $2; } 
-  | RW reg     { r[22] = $2; } 
-  | RX reg     { r[23] = $2; } 
-  | RY reg     { r[24] = $2; } 
-  | RZ reg     { r[25] = $2; } 
+load: reg reg      { temp=$1; temp2=$2; r[temp-263] = r[temp2-263]; }  
+  | reg nonEditReg { temp=$1; r[temp-263] = $2; }
 ;
 
-reg: ACC    { $$ = acc; }
-  | RA      { $$ = r[0]; }
-  | RB      { $$ = r[1]; }
-  | RC      { $$ = r[2]; }
-  | RD      { $$ = r[3]; }
-  | RE      { $$ = r[4]; }
-  | RF      { $$ = r[5]; }
-  | RG      { $$ = r[6]; }
-  | RH      { $$ = r[7]; }
-  | RI      { $$ = r[8]; }
-  | RJ      { $$ = r[9]; }
-  | RK      { $$ = r[10]; }
-  | RL      { $$ = r[11]; }
-  | RM      { $$ = r[12]; }
-  | RN      { $$ = r[13]; }
-  | RO      { $$ = r[14]; }
-  | RP      { $$ = r[15]; }
-  | RQ      { $$ = r[16]; }
-  | RR      { $$ = r[17]; }
-  | RS      { $$ = r[18]; }
-  | RT      { $$ = r[19]; }
-  | RU      { $$ = r[20]; }
-  | RV      { $$ = r[21]; }
-  | RW      { $$ = r[22]; }
-  | RX      { $$ = r[23]; }
-  | RY      { $$ = r[24]; }
-  | RZ      { $$ = r[25]; }
+nonEditReg: ACC   { $$ = acc; }
   | TOP     { $$ = top;   }
   | SIZE    { $$ = size;  }
+;
+
+reg: RA      { $$ = RA; }
+  | RB      { $$ = RB; }
+  | RC      { $$ = RC; }
+  | RD      { $$ = RD; }
+  | RE      { $$ = RE; }
+  | RF      { $$ = RF; }
+  | RG      { $$ = RG; }
+  | RH      { $$ = RH; }
+  | RI      { $$ = RI; }
+  | RJ      { $$ = RJ; }
+  | RK      { $$ = RK; }
+  | RL      { $$ = RL; }
+  | RM      { $$ = RM; }
+  | RN      { $$ = RN; }
+  | RO      { $$ = RO; }
+  | RP      { $$ = RP; }
+  | RQ      { $$ = RQ; }
+  | RR      { $$ = RR; }
+  | RS      { $$ = RS; }
+  | RT      { $$ = RT; }
+  | RU      { $$ = RU; }
+  | RV      { $$ = RV; }
+  | RW      { $$ = RW; }
+  | RX      { $$ = RX; }
+  | RY      { $$ = RY; }
+  | RZ      { $$ = RZ; }
 ;
 
 %%
@@ -194,12 +173,13 @@ yylex (void)
           return LOAD;
   }
   if (c == 'P'){
-    if(getchar () == 'U'){
+    c = getchar ();
+    if(c == 'U'){
       if(getchar () == 'S')
         if(getchar () == 'H')
           return PUSH;
     }
-    if(getchar () == 'O')
+    else if(c == 'O')
       if(getchar () == 'P')
         return POP;
   }
