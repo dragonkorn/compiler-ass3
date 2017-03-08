@@ -55,16 +55,18 @@
 %token SIZE
 %define api.value.type {double}
 %token NUM
+%left '-' '+'
 %precedence NEG   /* negation--unary minus */
+%right '^'        /* exponentiation */
 %% /* Grammar rules and actions follow.  */
 
 input: %empty
-  | input line  { printf ("\n> "); }
+  | input line  { printf ("> "); }
   ;
 
-line: '\n'    { printf ("acc = %d",acc);  }
-  | exp '\n'  { printf ("= %.10g", $1); }
-  | SHOW show '\n' 
+line: '\n'   
+  | exp '\n'  { printf ("= %.10g\n", $1); }
+  | SHOW show '\n'  { printf("\n");}
   | LOAD load '\n'
   | PUSH reg '\n'   { temp = $2; push(r[temp-263]); }
   | PUSH nonEditReg '\n'   { temp = $2; push(temp); } 
@@ -74,7 +76,12 @@ line: '\n'    { printf ("acc = %d",acc);  }
 exp:  NUM     { $$ = $1;
                 acc = $$;
               }
-  | reg       { $$ = $1;
+  | reg       { temp = $1; 
+                $$ = r[temp-263];
+                acc = $$;
+              }
+  | nonEditReg { temp = $1;
+                $$ = temp;
                 acc = $$;
               }
   | exp '+' exp   { $$ = $1 + $3;      
@@ -107,8 +114,8 @@ show: reg     { temp = $1;  printf("= %d",r[temp-263]); }
   | nonEditReg { temp = $1;  printf("= %d",temp); }
 ;
 
-load: reg reg      { temp=$1; temp2=$2; r[temp-263] = r[temp2-263]; }  
-  | reg nonEditReg { temp=$1; r[temp-263] = $2; }
+load: reg reg      { temp=$1; temp2=$2; r[temp2-263] = r[temp-263]; }  
+  | nonEditReg reg  { temp=$2; r[temp-263] = $1; }
 ;
 
 nonEditReg: ACC   { $$ = acc; }
