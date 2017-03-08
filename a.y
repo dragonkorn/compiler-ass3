@@ -56,16 +56,13 @@
 %token RZ
 %token TOP
 %token SIZE
-%define api.value.type {double}
 %token NUM
-<<<<<<< HEAD
-%left '-' '+'
-=======
 %token HEX
 %token AND
 %token OR
 %token NOT
->>>>>>> e1799cc1a11ec49a99ec991fe3fe3b603edf08ea
+%define api.value.type {double}
+%left '-' '+'
 %precedence NEG   /* negation--unary minus */
 %right '^'        /* exponentiation */
 %% /* Grammar rules and actions follow.  */
@@ -86,21 +83,15 @@ line: '\n'
 exp:  NUM     { $$ = $1;
                 acc = $$;
               }
-<<<<<<< HEAD
+  | HEX       { $$ = $1;
+                acc = $$;
+              }
   | reg       { temp = $1; 
                 $$ = r[temp-263];
                 acc = $$;
               }
   | nonEditReg { temp = $1;
                 $$ = temp;
-=======
-  | HEX {
-    $$ = $1;
-    acc = $$;
-  }
-  | reg       { $$ = $1;
->>>>>>> e1799cc1a11ec49a99ec991fe3fe3b603edf08ea
-                acc = $$;
               }
   | exp '+' exp   { $$ = $1 + $3;      
                     acc = $$;
