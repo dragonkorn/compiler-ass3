@@ -18,6 +18,7 @@
   int size;
   int stack[1000];
   int topStack;
+  int hex[10];
 
   //enum {RA=0, RB, RC, RD, RE, RF, RG, RH, RI, RJ, RK, RL, RM, RN, RO, RP, RQ, RR, RS, RT, RU, RV, RW, RX, RY, RZ};
   //enum {RA=0};
@@ -82,7 +83,7 @@ exp:  NUM     { $$ = $1;
               }
   | HEX {
     $$ = $1;
-                acc = $$;
+    acc = $$;
   }
   | reg       { $$ = $1;
                 acc = $$;
@@ -136,38 +137,8 @@ show: reg     { temp = $1;  printf("= %d",r[temp-263]); }
   | nonEditReg { temp = $1;  printf("= %d",temp); }
 ;
 
-<<<<<<< HEAD
-load: ACC reg   { acc = $2; }
-  | RA reg      { r[0] = $2; }  
-  | RB reg     { r[1] = $2; } 
-  | RC reg     { r[2] = $2; } 
-  | RD reg     { r[3] = $2; } 
-  | RE reg     { r[4] = $2; } 
-  | RF reg     { r[5] = $2; } 
-  | RG reg     { r[6] = $2; } 
-  | RH reg     { r[7] = $2; } 
-  | RI reg     { r[8] = $2; } 
-  | RJ reg     { r[9] = $2; } 
-  | RK reg     { r[10] = $2; } 
-  | RL reg     { r[11] = $2; } 
-  | RM reg     { r[12] = $2; } 
-  | RN reg     { r[13] = $2; } 
-  | RO reg     { r[14] = $2; } 
-  | RP reg     { r[15] = $2; } 
-  | RQ reg     { r[16] = $2; } 
-  | RR reg     { r[17] = $2; } 
-  | RS reg     { r[18] = $2; } 
-  | RT reg     { r[19] = $2; } 
-  | RU reg     { r[20] = $2; } 
-  | RV reg     { r[21] = $2; } 
-  | RW reg     { r[22] = $2; } 
-  | RX reg     { r[23] = $2; } 
-  | RY reg     { r[24] = $2; } 
-  | RZ reg     { r[25] = $2; } 
-=======
 load: reg reg      { temp=$1; temp2=$2; r[temp-263] = r[temp2-263]; }  
   | reg nonEditReg { temp=$1; r[temp-263] = $2; }
->>>>>>> 13e3d95f5b852221a51779d308073e9526b41ff0
 ;
 
 nonEditReg: ACC   { $$ = acc; }
@@ -242,7 +213,21 @@ yylex (void)
       if(getchar () == 'P')
         return POP;
   }
-
+  /* Process bitwist operator */
+  if(c == 'A'){
+    if(getchar() == 'N')
+      if(getchar() == 'D')
+        return AND;
+  }
+  if(c == 'O'){
+    if(getchar() == 'R')
+      return OR;
+  }
+  if(c == 'N'){
+    if(getchar() == 'O')
+      if(getchar() == 'T')
+        return NOT;
+  }
   /* Process register */
   if (c == '$'){
     if((c = getchar ()) == 'a'){
