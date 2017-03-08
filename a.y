@@ -1,9 +1,8 @@
-/* Reverse polish notation calculator.  */
-
+/* Infix notation calculator.  */
 
 %{
-  #include <stdio.h>
   #include <math.h>
+  #include <stdio.h>
   int yylex (void);
   void yyerror (char const *);
   void push (int data);
@@ -19,10 +18,9 @@
   int stack[1000];
   int topStack;
   int hex[10];
-
-  //enum {RA=0, RB, RC, RD, RE, RF, RG, RH, RI, RJ, RK, RL, RM, RN, RO, RP, RQ, RR, RS, RT, RU, RV, RW, RX, RY, RZ};
-  //enum {RA=0};
 %}
+/* Bison declarations.  */
+
 %token SHOW
 %token LOAD
 %token POP
@@ -63,20 +61,23 @@
 %token NOT
 %define api.value.type {double}
 %left '-' '+'
+%left '*' '/' '\\'
 %precedence NEG   /* negation--unary minus */
 %right '^'        /* exponentiation */
-%% /* Grammar rules and actions follow.  */
 
+
+
+%% /* The grammar follows.  */
 input: %empty
   | input line  { printf ("> "); }
   ;
 
-line: '\n'   
+line: '\n'
   | exp '\n'  { printf ("= %.10g\n", $1); }
   | SHOW show '\n'  { printf("\n");}
   | LOAD load '\n'
   | PUSH reg '\n'   { temp = $2; push(r[temp-263]); }
-  | PUSH nonEditReg '\n'   { temp = $2; push(temp); } 
+  | PUSH nonEditReg '\n'   { temp = $2; push(temp); }
   | POP reg '\n'    { temp = $2; r[temp-263] = pop(); }
  ;
 
@@ -138,8 +139,8 @@ exp:  NUM     { $$ = $1;
   }
   ;
 
-show: reg     { temp = $1;  printf("= %d",r[temp-263]); }
-  | nonEditReg { temp = $1;  printf("= %d",temp); }
+show: reg     { temp = $1;  printf("=%d",r[temp-263]); }
+  | nonEditReg { temp = $1;  printf("=%d",temp); }
 ;
 
 load: reg reg      { temp=$1; temp2=$2; r[temp2-263] = r[temp-263]; }  
@@ -180,122 +181,8 @@ reg: RA      { $$ = RA; }
 ;
 
 %%
-/* The lexical analyzer returns a double floating point
-   number on the stack and the token NUM, or the numeric code
-   of the character read if not a number.  It skips all blanks
-   and tabs, and returns 0 for end-of-input.  */
-
 #include <ctype.h>
-int
-yylex (void)
-{
-  int c;
 
-  /* Skip white space.  */
-  while ((c = getchar ()) == ' ' || c == '\t')
-    continue;
-  /* Process operation */
-  if (c == 'S'){
-    if(getchar () == 'H')
-      if(getchar () == 'O')
-        if(getchar () == 'W')
-          return SHOW;
-  }
-  if (c == 'L'){
-    if(getchar () == 'O')
-      if(getchar () == 'A')
-        if(getchar () == 'D')
-          return LOAD;
-  }
-  if (c == 'P'){
-    c = getchar ();
-    if(c == 'U'){
-      if(getchar () == 'S')
-        if(getchar () == 'H')
-          return PUSH;
-    }
-    else if(c == 'O')
-      if(getchar () == 'P')
-        return POP;
-  }
-  /* Process bitwist operator */
-  if(c == 'A'){
-    if(getchar() == 'N')
-      if(getchar() == 'D')
-        return AND;
-  }
-  if(c == 'O'){
-    if(getchar() == 'R')
-      return OR;
-  }
-  if(c == 'N'){
-    if(getchar() == 'O')
-      if(getchar() == 'T')
-        return NOT;
-  }
-  /* Process register */
-  if (c == '$'){
-    if((c = getchar ()) == 'a'){
-      if(getchar () == 'c')
-        if(getchar () == 'c')
-          return ACC;
-    }
-    if(c == 'r'){
-      c = getchar ();
-      switch (c){
-        case 'A' : return RA; break;
-        case 'B' : return RB; break;
-        case 'C' : return RC; break;
-        case 'D' : return RD; break;
-        case 'E' : return RE; break;
-        case 'F' : return RF; break;
-        case 'G' : return RG; break;
-        case 'H' : return RH; break;
-        case 'I' : return RI; break;
-        case 'J' : return RJ; break;
-        case 'K' : return RK; break;
-        case 'L' : return RL; break;
-        case 'M' : return RM; break;
-        case 'N' : return RN; break;
-        case 'O' : return RO; break;
-        case 'P' : return RP; break;
-        case 'Q' : return RQ; break;
-        case 'R' : return RR; break;
-        case 'S' : return RS; break;
-        case 'T' : return RT; break;
-        case 'U' : return RU; break;
-        case 'V' : return RV; break;
-        case 'W' : return RW; break;
-        case 'X' : return RX; break;
-        case 'Y' : return RY; break;
-        case 'Z' : return RZ; break;
-      }
-    }
-    if( c == 's'){
-      if(getchar () == 'i')
-        if(getchar () == 'z')
-          if(getchar () == 'e')
-            return SIZE;
-    }
-    if( c == 't'){
-      if(getchar () == 'o')
-        if(getchar () == 'p')
-          return TOP;
-    }
-  }
-  /* Process numbers.  */
-  if (c == '.' || isdigit (c))
-    {
-      ungetc (c, stdin);
-      scanf ("%lf", &yylval); 
-      return NUM;
-    }
-  /* Return end-of-input.  */
-  if (c == EOF)
-    return 0;
-  /* Return a single char.  */
-  return c;
-}
 void
 push (int data)
 {
@@ -332,17 +219,12 @@ int hextodec(char *hex){
   return ret;
 }
 
+
 int
 main (void)
 {
-  printf("> ");
-  return yyparse ();
-}
-#include <stdio.h>
-
-/* Called by yyparse on error.  */
-void
-yyerror (char const *s)
-{
-  fprintf (stderr, "%s\n", s);
+  while(1){
+  	printf("> ");
+  	return yyparse ();
+  }
 }
