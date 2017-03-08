@@ -8,6 +8,8 @@
   void yyerror (char const *);
   void push (int data);
   int pop (void);
+  int bitwistop(int num1, int num2, char *op);
+  int hextodec();
   int temp;
   int temp2;
   int acc;
@@ -16,6 +18,7 @@
   int size;
   int stack[1000];
   int topStack;
+  int hex[10];
 
   //enum {RA=0, RB, RC, RD, RE, RF, RG, RH, RI, RJ, RK, RL, RM, RN, RO, RP, RQ, RR, RS, RT, RU, RV, RW, RX, RY, RZ};
   //enum {RA=0};
@@ -55,7 +58,14 @@
 %token SIZE
 %define api.value.type {double}
 %token NUM
+<<<<<<< HEAD
 %left '-' '+'
+=======
+%token HEX
+%token AND
+%token OR
+%token NOT
+>>>>>>> e1799cc1a11ec49a99ec991fe3fe3b603edf08ea
 %precedence NEG   /* negation--unary minus */
 %right '^'        /* exponentiation */
 %% /* Grammar rules and actions follow.  */
@@ -76,12 +86,20 @@ line: '\n'
 exp:  NUM     { $$ = $1;
                 acc = $$;
               }
+<<<<<<< HEAD
   | reg       { temp = $1; 
                 $$ = r[temp-263];
                 acc = $$;
               }
   | nonEditReg { temp = $1;
                 $$ = temp;
+=======
+  | HEX {
+    $$ = $1;
+    acc = $$;
+  }
+  | reg       { $$ = $1;
+>>>>>>> e1799cc1a11ec49a99ec991fe3fe3b603edf08ea
                 acc = $$;
               }
   | exp '+' exp   { $$ = $1 + $3;      
@@ -108,6 +126,25 @@ exp:  NUM     { $$ = $1;
   | '(' exp ')'     { $$ = $2;            
                 acc = $$;
               }
+  | exp AND exp {
+      temp = $1;
+      temp2 = $3;
+      $$ = bitwistop(temp, temp2, "and");
+      acc = $$;
+  }
+
+  | exp OR exp {
+      temp = $1;
+      temp2 = $3;
+      $$ = bitwistop(temp, temp2, "or");
+      acc = $$;
+  }
+
+  | NOT exp {
+      temp = $2;
+      $$ = bitwistop(temp, 0, "not");
+      acc = $$;
+  }
   ;
 
 show: reg     { temp = $1;  printf("= %d",r[temp-263]); }
@@ -190,7 +227,21 @@ yylex (void)
       if(getchar () == 'P')
         return POP;
   }
-
+  /* Process bitwist operator */
+  if(c == 'A'){
+    if(getchar() == 'N')
+      if(getchar() == 'D')
+        return AND;
+  }
+  if(c == 'O'){
+    if(getchar() == 'R')
+      return OR;
+  }
+  if(c == 'N'){
+    if(getchar() == 'O')
+      if(getchar() == 'T')
+        return NOT;
+  }
   /* Process register */
   if (c == '$'){
     if((c = getchar ()) == 'a'){
@@ -245,7 +296,7 @@ yylex (void)
   if (c == '.' || isdigit (c))
     {
       ungetc (c, stdin);
-      scanf ("%lf", &yylval);
+      scanf ("%lf", &yylval); 
       return NUM;
     }
   /* Return end-of-input.  */
@@ -269,6 +320,25 @@ pop (void)
   top = stack[topStack];
   size--;
   return acc;
+}
+
+int bitwistop(int num1, int num2, char *op){
+  int ret;
+  if(op == "and"){
+    ret = num1 & num2;
+  }
+  else if(op == "or"){
+    ret = num1 | num2;
+  }
+  else if(op == "not"){
+    ret = ~num1;
+  }
+  return ret;
+}
+
+int hextodec(char *hex){
+  int ret;
+  return ret;
 }
 
 int
