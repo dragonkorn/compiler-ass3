@@ -8,7 +8,10 @@
   void yyerror (char const *);
   void push (int data);
   int pop (void);
+  int bitwistop(int num1, int num2, char *op);
+  int hextodec();
   int temp;
+  int temp2;
   int acc;
   int r[26];
   int top;
@@ -54,6 +57,10 @@
 %token SIZE
 %define api.value.type {double}
 %token NUM
+%token HEX
+%token AND
+%token OR
+%token NOT
 %precedence NEG   /* negation--unary minus */
 %% /* Grammar rules and actions follow.  */
 
@@ -72,6 +79,10 @@ line: '\n'    { printf ("acc = %d",acc);  }
 exp:  NUM     { $$ = $1;
                 acc = $$;
               }
+  | HEX {
+    $$ = $1;
+                acc = $$;
+  }
   | reg       { $$ = $1;
                 acc = $$;
               }
@@ -99,6 +110,25 @@ exp:  NUM     { $$ = $1;
   | '(' exp ')'     { $$ = $2;            
                 acc = $$;
               }
+  | exp AND exp {
+      temp = $1;
+      temp2 = $3;
+      $$ = bitwistop(temp, temp2, "and");
+      acc = $$;
+  }
+
+  | exp OR exp {
+      temp = $1;
+      temp2 = $3;
+      $$ = bitwistop(temp, temp2, "or");
+      acc = $$;
+  }
+
+  | NOT exp {
+      temp = $2;
+      $$ = bitwistop(temp, 0, "not");
+      acc = $$;
+  }
   ;
 
 show: reg     { temp = $1;
@@ -106,7 +136,7 @@ show: reg     { temp = $1;
 ;
 
 load: ACC reg   { acc = $2; }
-  | RA reg      { r[$1-263] = $2; }  
+  | RA reg      { r[0] = $2; }  
   | RB reg     { r[1] = $2; } 
   | RC reg     { r[2] = $2; } 
   | RD reg     { r[3] = $2; } 
@@ -258,7 +288,7 @@ yylex (void)
   if (c == '.' || isdigit (c))
     {
       ungetc (c, stdin);
-      scanf ("%lf", &yylval);
+      scanf ("%lf", &yylval); 
       return NUM;
     }
   /* Return end-of-input.  */
@@ -282,6 +312,25 @@ pop (void)
   top = stack[topStack];
   size--;
   return acc;
+}
+
+int bitwistop(int num1, int num2, char *op){
+  int ret;
+  if(op == "and"){
+    ret = num1 & num2;
+  }
+  else if(op == "or"){
+    ret = num1 | num2;
+  }
+  else if(op == "not"){
+    ret = ~num1;
+  }
+  return ret;
+}
+
+int hextodec(char *hex){
+  int ret;
+  return ret;
 }
 
 int
