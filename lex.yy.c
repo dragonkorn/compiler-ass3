@@ -1816,6 +1816,5 @@ int yywrap(void)
 
 int yyerror(void)
 {
-    printf("Error\n");
-    exit(1);
+    printf("! ERROR\n");
 }

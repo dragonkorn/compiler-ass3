@@ -4,11 +4,11 @@
   #include <math.h>
   #include <stdio.h>
   int yylex (void);
-  void yyerror (char const *);
   void push (int data);
   int pop (void);
   int bitwistop(int num1, int num2, char *op);
   int hextodec();
+  int showTop();
   int temp;
   int temp2;
   int acc;
@@ -139,16 +139,17 @@ exp:  NUM     { $$ = $1;
   }
   ;
 
-show: reg     { temp = $1;  printf("=%d",r[temp-263]); }
-  | nonEditReg { temp = $1;  printf("=%d",temp); }
+show: reg     { temp = $1;  printf("= %d",r[temp-263]); }
+  | nonEditReg { temp = $1;  printf("= %d",temp); }
 ;
 
 load: reg reg      { temp=$1; temp2=$2; r[temp2-263] = r[temp-263]; }  
   | nonEditReg reg  { temp=$2; r[temp-263] = $1; }
+  | reg nonEditReg { yyerror(); }
 ;
 
 nonEditReg: ACC   { $$ = acc; }
-  | TOP     { $$ = top;   }
+  | TOP     { $$ = showTop();   }
   | SIZE    { $$ = size;  }
 ;
 
@@ -194,12 +195,25 @@ push (int data)
 int 
 pop (void)
 {
-  acc = stack[--topStack];
-  top = stack[topStack];
-  size--;
-  return acc;
+  if(topStack>0){
+    acc = stack[--topStack];
+    top = stack[topStack];
+    size--;
+    return acc; 
+  }else{
+    yyerror();
+    return 0;
+  }
 }
-
+int showTop()
+{
+  if(topStack>0){
+    return top;
+  }else{
+    yyerror();
+    return 0;
+  }
+}
 int bitwistop(int num1, int num2, char *op){
   int ret;
   if(op == "and"){
