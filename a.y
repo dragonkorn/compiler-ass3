@@ -9,6 +9,8 @@
   int bitwistop(int num1, int num2, char *op);
   int hextodec();
   int showTop();
+  int errMsOperator();
+  int errMsOperand();
   int temp;
   int temp2;
   int acc;
@@ -59,6 +61,7 @@
 %token AND
 %token OR
 %token NOT
+%token EXIT
 %define api.value.type {double}
 %left '-' '+'
 %left '*' '/' '\\'
@@ -72,13 +75,15 @@ input: %empty
   | input line  { printf ("> "); }
   ;
 
-line: '\n'
-  | exp '\n'  { printf ("= %.10g\n", $1); }
-  | SHOW show '\n'  { printf("\n");}
+line: '\n'                  
+  | exp '\n'                { printf ("= %.10g\n", $1); }
+  | SHOW show '\n'          { printf("\n");}
   | LOAD load '\n'
-  | PUSH reg '\n'   { temp = $2; push(r[temp-263]); }
-  | PUSH nonEditReg '\n'   { temp = $2; push(temp); }
-  | POP reg '\n'    { temp = $2; r[temp-263] = pop(); }
+  | PUSH reg '\n'           { temp = $2; push(r[temp-263]); }
+  | PUSH nonEditReg '\n'    { temp = $2; push(temp); }
+  | POP reg '\n'            { temp = $2; r[temp-263] = pop(); }
+  | EXIT '\n'             { exit(0); }
+  | error '\n'               
  ;
 
 exp:  NUM     { $$ = $1;
@@ -233,6 +238,17 @@ int hextodec(char *hex){
   return ret;
 }
 
+int errMsOperator()
+{
+  yyerror();
+  return 0;
+}
+
+int errMsOperand()
+{
+  yyerror();
+  return 0;
+}
 
 int
 main (void)

@@ -67,6 +67,8 @@ H 			[0-9a-fA-F]
 
 {D}+					{ yylval = atoi(yytext);	return NUM; }
 {H}+"h"					{ yylval = (int)strtol(yytext, NULL, 16);  return NUM; }
+
+"exit"		{ return EXIT; }
 .                     	{ yyerror();  }
 
 
