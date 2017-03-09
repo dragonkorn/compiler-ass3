@@ -1,6 +1,6 @@
 
 D			[0-9]
-C			[!-~]
+C			[0-9a-zA-Z]
 H 			[0-9a-fA-F]
 
 %{
@@ -8,7 +8,8 @@ H 			[0-9a-fA-F]
 #include <stdlib.h>
 #include <string.h>
 #include "y.tab.h"
-	
+
+
 %}
 
 %%
@@ -66,9 +67,7 @@ H 			[0-9a-fA-F]
 
 {D}+					{ yylval = atoi(yytext);	return NUM; }
 {H}+"h"					{ yylval = (int)strtol(yytext, NULL, 16);  return NUM; }
-
 "exit"		{ return EXIT; }
-
 {C}+					{ return str; }
 
 
