@@ -84,7 +84,8 @@ extern int yydebug;
     OR = 294,
     NOT = 295,
     EXIT = 296,
-    NEG = 297
+    str = 297,
+    NEG = 298
   };
 #endif
 /* Tokens.  */
@@ -127,7 +128,8 @@ extern int yydebug;
 #define OR 294
 #define NOT 295
 #define EXIT 296
-#define NEG 297
+#define str 297
+#define NEG 298
 
 /* Value type.  */
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED

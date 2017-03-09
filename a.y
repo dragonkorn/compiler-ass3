@@ -9,8 +9,6 @@
   int bitwistop(int num1, int num2, char *op);
   int hextodec();
   int showTop();
-  int errMsOperator();
-  int errMsOperand();
   int temp;
   int temp2;
   int acc;
@@ -62,6 +60,7 @@
 %token OR
 %token NOT
 %token EXIT
+%token str
 %define api.value.type {double}
 %left '-' '+'
 %left '*' '/' '\\'
@@ -82,8 +81,8 @@ line: '\n'
   | PUSH reg '\n'           { temp = $2; push(r[temp-263]); }
   | PUSH nonEditReg '\n'    { temp = $2; push(temp); }
   | POP reg '\n'            { temp = $2; r[temp-263] = pop(); }
-  | EXIT '\n'             { exit(0); }
-  | error '\n'               
+  | EXIT '\n'               { exit(0); }
+  | str '\n'                { yyerror(); }
  ;
 
 exp:  NUM     { $$ = $1;
@@ -236,18 +235,6 @@ int bitwistop(int num1, int num2, char *op){
 int hextodec(char *hex){
   int ret;
   return ret;
-}
-
-int errMsOperator()
-{
-  yyerror();
-  return 0;
-}
-
-int errMsOperand()
-{
-  yyerror();
-  return 0;
 }
 
 int
