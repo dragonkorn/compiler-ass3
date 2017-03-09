@@ -72,10 +72,11 @@
 %% /* The grammar follows.  */
 input: %empty
   | input line  { printf ("> "); }
+  | error       { yyerror(); }
   ;
 
 line: '\n'                  
-  | exp '\n'                { printf ("= %.10g\n", $1); }
+  | exp '\n'                { acc = $1; printf ("= %.10g\n", $1); }
   | SHOW show '\n'          { printf("\n");}
   | LOAD load '\n'
   | PUSH reg '\n'           { temp = $2; push(r[temp-263]); }
@@ -85,63 +86,36 @@ line: '\n'
   | str '\n'                { yyerror(); }
  ;
 
-exp:  NUM     { $$ = $1;
-                acc = $$;
-              }
-  | HEX       { $$ = $1;
-                acc = $$;
-              }
+exp:  NUM     { $$ = $1; }
+  | HEX       { $$ = $1; }
   | reg       { temp = $1; 
                 $$ = r[temp-263];
-                acc = $$;
               }
   | nonEditReg { temp = $1;
                 $$ = temp;
               }
-  | exp '+' exp   { $$ = $1 + $3;      
-                    acc = $$;
-                  }
-  | exp '-' exp   { $$ = $1 - $3;      
-                    acc = $$;
-                  }
-  | exp '*' exp     { $$ = $1 * $3;         
-                acc = $$;
-              }
-  | exp '/' exp     { $$ = $1 / $3;         
-                acc = $$;
-              }
-  | exp '\\' exp      { $$ = fmod ($1, $3);         
-                acc = $$;
-              }
-  | '-' exp  %prec NEG  { $$ = -$2;           
-                acc = $$;
-              }
-  | exp '^' exp     { $$ = pow ($1, $3);        
-                acc = $$;
-              }
+  | exp '+' exp   { $$ = $1 + $3; }
+  | exp '-' exp   { $$ = $1 - $3; }
+  | exp '*' exp     { $$ = $1 * $3; }
+  | exp '/' exp     { $$ = $1 / $3; }
+  | exp '\\' exp      { $$ = fmod ($1, $3); }
+  | '-' exp  %prec NEG  { $$ = -$2; }
+  | exp '^' exp     { $$ = pow ($1, $3); }
   | '(' exp ')'     { $$ = $2;            
                 acc = $$;
               }
   | exp AND exp {
       temp = $1;
       temp2 = $3;
-      $$ = bitwistop(temp, temp2, "and");
-      acc = $$;
-  }
-
+      $$ = bitwistop(temp, temp2, "and"); }
   | exp OR exp {
       temp = $1;
       temp2 = $3;
-      $$ = bitwistop(temp, temp2, "or");
-      acc = $$;
-  }
-
+      $$ = bitwistop(temp, temp2, "or"); }
   | NOT exp {
       temp = $2;
-      $$ = bitwistop(temp, 0, "not");
-      acc = $$;
-  }
-  ;
+      $$ = bitwistop(temp, 0, "not"); }
+;
 
 show: reg     { temp = $1;  printf("= %d",r[temp-263]); }
   | nonEditReg { temp = $1;  printf("= %d",temp); }
